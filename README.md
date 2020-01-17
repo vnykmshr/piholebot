@@ -18,12 +18,13 @@ scp piholebot pi@danfe:~/
 Copy bot config
 ===============
 ```
-cp piholebot.production.ini /etc/piholebot/
+sudo mkdir /etc/piholebot
+sudo cp piholebot.production.ini /etc/piholebot/
 ```
 Symlink bot binary
 ==================
 ```
-ln -sf /home/pi/piholebot /usr/local/bin/
+sudo ln -sf /home/pi/piholebot /usr/local/bin/
 ```
 
 Crontab Entry
