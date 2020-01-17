@@ -1,4 +1,7 @@
 
+files/etc/piholebot/piholebot.production.ini
+/piholebot
+
 # Created by https://www.gitignore.io/api/osx,go,linux
 # Edit at https://www.gitignore.io/?templates=osx,go,linux
 
