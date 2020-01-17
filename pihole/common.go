@@ -40,3 +40,8 @@ func join(basePath string, paths ...string) string {
 	u.Path = result
 	return u.String()
 }
+
+// wrap wrap an error
+func wrap(msg string, err error) error {
+	return fmt.Errorf("%s: %v", msg, err)
+}

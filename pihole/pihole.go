@@ -12,12 +12,12 @@ func (m *Module) DoTheDew() error {
 	log.Println("Doing the dew!")
 	stats, err := m.fetch()
 	if err != nil {
-		return err
+		return wrap("failed to fetch", err)
 	}
 
 	msg := m.compose(stats)
 	if msg == "" {
-		return errors.New("empty message, ignored")
+		return wrap("failed to compose", errors.New("empty message"))
 	}
 
 	if !m.cfg.Twitter.Enabled {
@@ -27,10 +27,10 @@ func (m *Module) DoTheDew() error {
 
 	tweet, err := m.twitter.PostTweet(msg, nil)
 	if err != nil {
-		return err
+		return wrap("failed to tweet", err)
 	}
 
-	log.Printf("[%s][%s][%s] %s", m.cfg.Server.Name, "tweet", tweet.CreatedAt, msg)
+	log.Printf("[%s][%s][%s] %s", m.cfg.Server.Name, "tweet", tweet.CreatedAt, tweet.Text)
 	return nil
 }
 
@@ -38,12 +38,15 @@ func (m *Module) fetch() (Stats, error) {
 	var data Stats
 	resp, err := m.client.Get(join(m.cfg.Server.Host, "admin", "api.php"))
 	if err != nil {
-		return data, err
+		return data, wrap("failed to request", err)
 	}
 
 	defer resp.Body.Close()
-	err = json.NewDecoder(resp.Body).Decode(&data)
-	return data, err
+	if err := json.NewDecoder(resp.Body).Decode(&data); err != nil {
+		return data, wrap("failed to unmarshal", err)
+	}
+
+	return data, nil
 }
 
 func (m *Module) compose(stats Stats) string {

@@ -50,9 +50,10 @@ type Stats struct {
 // NewPiHoleBotModule new piholebot module
 func NewPiHoleBotModule() *Module {
 	var cfg Config
-	ok := read(&cfg, "/etc/piholebot", "piholebot") || read(&cfg, "files/etc/piholebot", "piholebot") || read(&cfg, "../files/etc/piholebot", "piholebot")
+	ok := read(&cfg, "/etc/piholebot", "piholebot") || read(&cfg, "files/etc/piholebot", "piholebot")
 	if !ok {
-		log.Fatalln("failed to read config")
+		log.Println("failed to read config, loading defaults")
+		cfg = getDefaultConfig()
 	}
 
 	return &Module{
@@ -61,5 +62,18 @@ func NewPiHoleBotModule() *Module {
 			Timeout: cfg.Server.Timeout * time.Second,
 		},
 		twitter: anaconda.NewTwitterApiWithCredentials(cfg.Twitter.AccessToken, cfg.Twitter.AccessTokenSecret, cfg.Twitter.ConsumerKey, cfg.Twitter.ConsumerSecret),
+	}
+}
+
+func getDefaultConfig() Config {
+	return Config{
+		Server: ServerConfig{
+			Name:    "piholebot",
+			Host:    "http://localhost",
+			Timeout: 1,
+		},
+		Twitter: TwitterConfig{
+			Enabled: false,
+		},
 	}
 }
