@@ -25,5 +25,5 @@ sudo ln -sf /home/pi/piholebot /usr/local/bin/
 
 ### Crontab Entry
 ```
-55 23 * * * PIENV=production /usr/local/bin/piholebot >> /var/log/piholebot/piholebot.log 2>&1
+55 23 * * * PIENV=production /usr/local/bin/piholebot
 ```
