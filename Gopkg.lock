@@ -50,6 +50,14 @@
   revision = "bca2e7f09a178fd36b034107a00e2323bca6a82e"
 
 [[projects]]
+  digest = "1:b6bbd2f9e0724bd81890c8644259f920c6d61c08453978faff0bebd25f3e7d3e"
+  name = "github.com/jpillora/backoff"
+  packages = ["."]
+  pruneopts = "UT"
+  revision = "8eab2debe79d12b7bd3d10653910df25fa9552ba"
+  version = "1.0.0"
+
+[[projects]]
   branch = "master"
   digest = "1:76ee51c3f468493aff39dbacc401e8831fbb765104cbf613b89bef01cf4bad70"
   name = "golang.org/x/net"
@@ -83,6 +91,7 @@
   analyzer-version = 1
   input-imports = [
     "github.com/ChimeraCoder/anaconda",
+    "github.com/jpillora/backoff",
     "gopkg.in/gcfg.v1",
   ]
   solver-name = "gps-cdcl"
