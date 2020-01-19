@@ -12,7 +12,7 @@ import (
 )
 
 func TestModule_DoTheDew(t *testing.T) {
-	m := NewPiHoleBotModule()
+	m := NewPiHoleBotModule("test")
 
 	h := http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		w.Write([]byte(`{"domains_being_blocked":114789,"dns_queries_today":38588,"ads_blocked_today":5926,"ads_percentage_today":15.357106,"unique_domains":1492,"queries_forwarded":30731,"queries_cached":1931,"clients_ever_seen":12,"unique_clients":10,"dns_queries_all_types":38588,"reply_NODATA":260,"reply_NXDOMAIN":1751,"reply_CNAME":3054,"reply_IP":7320,"privacy_level":0,"status":"enabled","gravity_last_updated":{"file_exists":true,"absolute":1578780798,"relative":{"days":"5","hours":"12","minutes":"26"}}}`))
@@ -57,7 +57,7 @@ func TestModule_DoTheDew(t *testing.T) {
 }
 
 func TestModule_fetch(t *testing.T) {
-	m := NewPiHoleBotModule()
+	m := NewPiHoleBotModule("test")
 	m.cfg.Server.Host = "http://test"
 	type fields struct {
 		cfg     *Config
@@ -101,7 +101,7 @@ func TestModule_fetch(t *testing.T) {
 }
 
 func TestModule_compose(t *testing.T) {
-	m := NewPiHoleBotModule()
+	m := NewPiHoleBotModule("test")
 	type fields struct {
 		cfg     *Config
 		client  *http.Client

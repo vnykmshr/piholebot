@@ -9,7 +9,7 @@ import (
 
 // DoTheDew fetch stats, compose and post tweet
 func (m *Module) DoTheDew() error {
-	log.Println("Doing the dew!")
+	log.Printf("[%s][%s] Doing the dew!", m.cfg.Server.Name, m.version)
 	stats, err := m.fetch()
 	if err != nil {
 		return wrap("failed to fetch", err)
@@ -30,7 +30,7 @@ func (m *Module) DoTheDew() error {
 		return wrap("failed to tweet", err)
 	}
 
-	log.Printf("[%s][%s][%s] %s", m.cfg.Server.Name, "tweet", tweet.CreatedAt, tweet.Text)
+	log.Printf("[%s][%s][%s] %s", m.cfg.Server.Name, m.version, tweet.CreatedAt, tweet.Text)
 	return nil
 }
 

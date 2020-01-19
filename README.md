@@ -4,7 +4,7 @@ Pi Hole Ad-Blocker Tweet Bot
 ## dev
 ### Build for Pi
 ```
-GOOS=linux GOARCH=arm GOARM=5 go build -v
+GOOS=linux GOARCH=arm GOARM=5 go build -ldflags "-X main.version=`date -u +%Y%m%d.%H%M`" -v"
 ```
 ### Copy over
 ```

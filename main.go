@@ -8,6 +8,8 @@ import (
 	"github.com/vnykmshr/piholebot/pihole"
 )
 
+var version string
+
 func main() {
 	MaxAttempts := 5.0
 
@@ -20,14 +22,14 @@ func main() {
 
 	var err error
 	for {
-		err = pihole.NewPiHoleBotModule().DoTheDew()
+		err = pihole.NewPiHoleBotModule(version).DoTheDew()
 		if err != nil {
 			if b.Attempt() >= MaxAttempts {
 				break
 			}
 
 			d := b.Duration()
-			log.Printf("[pihole][main] error: %s, retrying in %s", err, d)
+			log.Printf("[pihole][main][%s] error: %s, retrying in %s", err, d, version)
 			time.Sleep(d)
 			continue
 		}
@@ -37,6 +39,6 @@ func main() {
 	}
 
 	if err != nil {
-		log.Fatalf("persistent error: %s, retries %f exhausted", err, MaxAttempts)
+		log.Fatalf("[pihole][main][%s] persistent error: %s, retries %f exhausted", version, err, MaxAttempts)
 	}
 }

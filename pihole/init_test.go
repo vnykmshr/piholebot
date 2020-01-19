@@ -17,7 +17,7 @@ func TestNewPiHoleBotModule(t *testing.T) {
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			if m := NewPiHoleBotModule(); (m == nil) != tt.wantErr {
+			if m := NewPiHoleBotModule("test"); (m == nil) != tt.wantErr {
 				t.Errorf("NewPiHoleBotModule() m = %v, wantErr %v", m, tt.wantErr)
 			}
 		})

@@ -33,6 +33,7 @@ type TwitterConfig struct {
 
 // Module PiHoleBotModule
 type Module struct {
+	version string
 	cfg     *Config
 	client  *http.Client
 	twitter *anaconda.TwitterApi
@@ -48,7 +49,7 @@ type Stats struct {
 }
 
 // NewPiHoleBotModule new piholebot module
-func NewPiHoleBotModule() *Module {
+func NewPiHoleBotModule(version string) *Module {
 	var cfg Config
 	ok := read(&cfg, "/etc/piholebot", "piholebot") || read(&cfg, "files/etc/piholebot", "piholebot")
 	if !ok {
@@ -57,7 +58,8 @@ func NewPiHoleBotModule() *Module {
 	}
 
 	return &Module{
-		cfg: &cfg,
+		version: version,
+		cfg:     &cfg,
 		client: &http.Client{
 			Timeout: cfg.Server.Timeout * time.Second,
 		},
