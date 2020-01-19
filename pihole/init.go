@@ -19,6 +19,12 @@ type ServerConfig struct {
 	Name    string
 	Host    string
 	Timeout time.Duration
+
+	MaxAttempts int32
+	MinDelay    time.Duration
+	MaxDelay    time.Duration
+	Factor      int32
+	Jitter      bool
 }
 
 // TwitterConfig bot twitter config
@@ -33,8 +39,8 @@ type TwitterConfig struct {
 
 // Module PiHoleBotModule
 type Module struct {
-	version string
-	cfg     *Config
+	Version string
+	Config  *Config
 	client  *http.Client
 	twitter *anaconda.TwitterApi
 }
@@ -58,8 +64,8 @@ func NewPiHoleBotModule(version string) *Module {
 	}
 
 	return &Module{
-		version: version,
-		cfg:     &cfg,
+		Version: version,
+		Config:  &cfg,
 		client: &http.Client{
 			Timeout: cfg.Server.Timeout * time.Second,
 		},
@@ -70,9 +76,14 @@ func NewPiHoleBotModule(version string) *Module {
 func getDefaultConfig() Config {
 	return Config{
 		Server: ServerConfig{
-			Name:    "piholebot",
-			Host:    "http://localhost",
-			Timeout: 1,
+			Name:        "piholebot",
+			Host:        "http://localhost",
+			Timeout:     1,
+			MaxAttempts: 5,
+			MinDelay:    1,
+			MaxDelay:    10,
+			Factor:      2,
+			Jitter:      true,
 		},
 		Twitter: TwitterConfig{
 			Enabled: false,

@@ -11,34 +11,30 @@ import (
 var version string
 
 func main() {
-	MaxAttempts := 5.0
-
+	m := pihole.NewPiHoleBotModule(version)
 	b := &backoff.Backoff{
-		Min:    1 * time.Second,
-		Max:    10 * time.Second,
-		Factor: 2,
-		Jitter: true,
+		Min:    m.Config.Server.MinDelay * time.Second,
+		Max:    m.Config.Server.MaxDelay * time.Second,
+		Factor: float64(m.Config.Server.Factor),
+		Jitter: m.Config.Server.Jitter,
 	}
 
 	var err error
 	for {
-		err = pihole.NewPiHoleBotModule(version).DoTheDew()
+		err = m.DoTheDew()
 		if err != nil {
-			if b.Attempt() >= MaxAttempts {
-				break
+			if b.Attempt() >= float64(m.Config.Server.MaxAttempts) {
+				log.Fatalf("[pihole][%s] exhausted attempts: %d, last err: %s", version, m.Config.Server.MaxAttempts, err)
 			}
 
 			d := b.Duration()
-			log.Printf("[pihole][main][%s] error: %s, retrying in %s", err, d, version)
+			log.Printf("[pihole][%s] error: %s, retrying in %s", version, err, d)
 			time.Sleep(d)
 			continue
 		}
 
+		// DoTheDew: success
 		b.Reset()
 		break
-	}
-
-	if err != nil {
-		log.Fatalf("[pihole][main][%s] persistent error: %s, retries %f exhausted", version, err, MaxAttempts)
 	}
 }

@@ -18,12 +18,19 @@ func TestModule_DoTheDew(t *testing.T) {
 		w.Write([]byte(`{"domains_being_blocked":114789,"dns_queries_today":38588,"ads_blocked_today":5926,"ads_percentage_today":15.357106,"unique_domains":1492,"queries_forwarded":30731,"queries_cached":1931,"clients_ever_seen":12,"unique_clients":10,"dns_queries_all_types":38588,"reply_NODATA":260,"reply_NXDOMAIN":1751,"reply_CNAME":3054,"reply_IP":7320,"privacy_level":0,"status":"enabled","gravity_last_updated":{"file_exists":true,"absolute":1578780798,"relative":{"days":"5","hours":"12","minutes":"26"}}}`))
 	})
 
-	httpClient, teardown := testingHTTPClient(h)
-	m.client = httpClient
+	tc, teardown := testingHTTPClient(h)
+	defer teardown()
+
+	h2 := http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		w.Write([]byte("invalid-response"))
+	})
+
+	tc2, teardown := testingHTTPClient(h2)
 	defer teardown()
 
 	type fields struct {
-		cfg     *Config
+		Version string
+		Config  *Config
 		client  *http.Client
 		twitter *anaconda.TwitterApi
 	}
@@ -35,17 +42,39 @@ func TestModule_DoTheDew(t *testing.T) {
 		{
 			name: "t1",
 			fields: fields{
-				cfg:     m.cfg,
-				client:  m.client,
+				Version: m.Version,
+				Config:  m.Config,
+				client:  tc,
 				twitter: m.twitter,
 			},
 			wantErr: false,
+		},
+		{
+			name: "t2",
+			fields: fields{
+				Version: m.Version,
+				Config:  m.Config,
+				client:  tc2,
+				twitter: m.twitter,
+			},
+			wantErr: true,
+		},
+		{
+			name: "t3",
+			fields: fields{
+				Version: "decompose",
+				Config:  m.Config,
+				client:  tc,
+				twitter: m.twitter,
+			},
+			wantErr: true,
 		},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			m := &Module{
-				cfg:     tt.fields.cfg,
+				Version: tt.fields.Version,
+				Config:  tt.fields.Config,
 				client:  tt.fields.client,
 				twitter: tt.fields.twitter,
 			}
@@ -58,9 +87,16 @@ func TestModule_DoTheDew(t *testing.T) {
 
 func TestModule_fetch(t *testing.T) {
 	m := NewPiHoleBotModule("test")
-	m.cfg.Server.Host = "http://test"
+	h := http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		w.Write([]byte("invalid-response"))
+	})
+
+	tc, teardown := testingHTTPClient(h)
+	defer teardown()
+
 	type fields struct {
-		cfg     *Config
+		Version string
+		Config  *Config
 		client  *http.Client
 		twitter *anaconda.TwitterApi
 	}
@@ -73,7 +109,19 @@ func TestModule_fetch(t *testing.T) {
 		{
 			name: "t1",
 			fields: fields{
-				cfg:     m.cfg,
+				Version: m.Version,
+				Config:  m.Config,
+				client:  tc,
+				twitter: m.twitter,
+			},
+			want:    Stats{},
+			wantErr: true,
+		},
+		{
+			name: "t2",
+			fields: fields{
+				Version: m.Version,
+				Config:  m.Config,
 				client:  m.client,
 				twitter: m.twitter,
 			},
@@ -84,7 +132,8 @@ func TestModule_fetch(t *testing.T) {
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			m := &Module{
-				cfg:     tt.fields.cfg,
+				Version: tt.fields.Version,
+				Config:  tt.fields.Config,
 				client:  tt.fields.client,
 				twitter: tt.fields.twitter,
 			}
@@ -102,8 +151,10 @@ func TestModule_fetch(t *testing.T) {
 
 func TestModule_compose(t *testing.T) {
 	m := NewPiHoleBotModule("test")
+
 	type fields struct {
-		cfg     *Config
+		Version string
+		Config  *Config
 		client  *http.Client
 		twitter *anaconda.TwitterApi
 	}
@@ -119,7 +170,8 @@ func TestModule_compose(t *testing.T) {
 		{
 			name: "t1",
 			fields: fields{
-				cfg:     m.cfg,
+				Version: m.Version,
+				Config:  m.Config,
 				client:  m.client,
 				twitter: m.twitter,
 			},
@@ -131,7 +183,8 @@ func TestModule_compose(t *testing.T) {
 		{
 			name: "t1",
 			fields: fields{
-				cfg:     m.cfg,
+				Version: m.Version,
+				Config:  m.Config,
 				client:  m.client,
 				twitter: m.twitter,
 			},
@@ -146,7 +199,8 @@ func TestModule_compose(t *testing.T) {
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			m := &Module{
-				cfg:     tt.fields.cfg,
+				Version: tt.fields.Version,
+				Config:  tt.fields.Config,
 				client:  tt.fields.client,
 				twitter: tt.fields.twitter,
 			}
@@ -158,7 +212,7 @@ func TestModule_compose(t *testing.T) {
 }
 
 func testingHTTPClient(handler http.Handler) (*http.Client, func()) {
-  s := httptest.NewServer(handler)
+	s := httptest.NewServer(handler)
 
 	cli := &http.Client{
 		Transport: &http.Transport{

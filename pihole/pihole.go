@@ -9,10 +9,14 @@ import (
 
 // DoTheDew fetch stats, compose and post tweet
 func (m *Module) DoTheDew() error {
-	log.Printf("[%s][%s] Doing the dew!", m.cfg.Server.Name, m.version)
+	log.Printf("[%s][%s] Doing the dew!", m.Config.Server.Name, m.Version)
 	stats, err := m.fetch()
 	if err != nil {
 		return wrap("failed to fetch", err)
+	}
+
+	if m.Version == "decompose" {
+		stats.AdsBlockedToday = 0
 	}
 
 	msg := m.compose(stats)
@@ -20,8 +24,8 @@ func (m *Module) DoTheDew() error {
 		return wrap("failed to compose", errors.New("empty message"))
 	}
 
-	if !m.cfg.Twitter.Enabled {
-		log.Printf("[dry][tweet] %s", msg)
+	if !m.Config.Twitter.Enabled {
+		log.Printf("[%s][%s][dry] %s", m.Config.Server.Name, m.Version, msg)
 		return nil
 	}
 
@@ -30,13 +34,13 @@ func (m *Module) DoTheDew() error {
 		return wrap("failed to tweet", err)
 	}
 
-	log.Printf("[%s][%s][%s] %s", m.cfg.Server.Name, m.version, tweet.CreatedAt, tweet.Text)
+	log.Printf("[%s][%s][%s] %s", m.Config.Server.Name, m.Version, tweet.CreatedAt, tweet.Text)
 	return nil
 }
 
 func (m *Module) fetch() (Stats, error) {
 	var data Stats
-	resp, err := m.client.Get(join(m.cfg.Server.Host, "admin", "api.php"))
+	resp, err := m.client.Get(join(m.Config.Server.Host, "admin", "api.php"))
 	if err != nil {
 		return data, wrap("failed to request", err)
 	}

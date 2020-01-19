@@ -61,7 +61,7 @@ func Test_join(t *testing.T) {
 			want: "http://test/d1/d2",
 		},
 		{
-			name: "t1",
+			name: "t2",
 			args: args{
 				basePath: "http://test/",
 				paths:    []string{"/d1/", "/d2/"},
@@ -69,7 +69,7 @@ func Test_join(t *testing.T) {
 			want: "http://test/d1/d2",
 		},
 		{
-			name: "t1",
+			name: "t3",
 			args: args{
 				basePath: ":",
 				paths:    []string{"/d1/", "/d2/"},

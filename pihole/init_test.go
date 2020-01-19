@@ -33,9 +33,14 @@ func Test_getDefaultConfig(t *testing.T) {
 			name: "t1",
 			want: Config{
 				Server: ServerConfig{
-					Name:    "piholebot",
-					Host:    "http://localhost",
-					Timeout: 1,
+					Name:        "piholebot",
+					Host:        "http://localhost",
+					Timeout:     1,
+					MaxAttempts: 5,
+					MinDelay:    1,
+					MaxDelay:    10,
+					Factor:      2,
+					Jitter:      true,
 				},
 				Twitter: TwitterConfig{
 					Enabled: false,
