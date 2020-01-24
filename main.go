@@ -1,7 +1,10 @@
 package main
 
 import (
+	"flag"
+	"fmt"
 	"log"
+	"os"
 	"time"
 
 	"github.com/jpillora/backoff"
@@ -9,8 +12,21 @@ import (
 )
 
 var version string
+var buildTime string
+var versionFlag bool
+
+func init() {
+	flag.BoolVar(&versionFlag, "version", false, "binary version")
+}
 
 func main() {
+	flag.Parse()
+
+	if versionFlag {
+		fmt.Println(fmt.Sprintf("PiHoleBot\nPi-Hole Ad-Blocker Tweet Bot\nVersion: %s\nBuild Time: %s", version, buildTime))
+		os.Exit(0)
+	}
+
 	m := pihole.NewPiHoleBotModule(version)
 	b := &backoff.Backoff{
 		Min:    m.Config.Server.MinDelay * time.Second,
