@@ -18,6 +18,7 @@ type Config struct {
 type ServerConfig struct {
 	Name    string
 	Host    string
+	Auth    string
 	Timeout time.Duration
 
 	MaxAttempts int32
@@ -54,6 +55,12 @@ type Stats struct {
 	UniqueClients       int32   `json:"unique_clients,omitempty"`
 }
 
+// TopStats top stats
+type TopStats struct {
+	TopQueries map[string]int32 `json:"top_queries,omitempty"`
+	TopAds     map[string]int32 `json:"top_ads,omitempty"`
+}
+
 // NewPiHoleBotModule new piholebot module
 func NewPiHoleBotModule(version string) *Module {
 	var cfg Config
@@ -78,6 +85,7 @@ func getDefaultConfig() Config {
 		Server: ServerConfig{
 			Name:        "piholebot",
 			Host:        "http://localhost",
+			Auth:        "testing",
 			Timeout:     1,
 			MaxAttempts: 5,
 			MinDelay:    1,

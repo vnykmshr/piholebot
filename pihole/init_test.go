@@ -35,6 +35,7 @@ func Test_getDefaultConfig(t *testing.T) {
 				Server: ServerConfig{
 					Name:        "piholebot",
 					Host:        "http://localhost",
+					Auth:        "testing",
 					Timeout:     1,
 					MaxAttempts: 5,
 					MinDelay:    1,

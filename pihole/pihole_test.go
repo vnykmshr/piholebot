@@ -2,6 +2,7 @@ package pihole
 
 import (
 	"context"
+	"encoding/json"
 	"net"
 	"net/http"
 	"net/http/httptest"
@@ -159,7 +160,8 @@ func TestModule_compose(t *testing.T) {
 		twitter *anaconda.TwitterApi
 	}
 	type args struct {
-		stats Stats
+		stats    Stats
+		topStats TopStats
 	}
 	tests := []struct {
 		name   string
@@ -176,7 +178,8 @@ func TestModule_compose(t *testing.T) {
 				twitter: m.twitter,
 			},
 			args: args{
-				stats: Stats{},
+				stats:    Stats{},
+				topStats: TopStats{},
 			},
 			want: "",
 		},
@@ -192,8 +195,9 @@ func TestModule_compose(t *testing.T) {
 				stats: Stats{
 					AdsBlockedToday: 10,
 				},
+				topStats: TopStats{},
 			},
-			want: "Today, I have blocked 10 queries processing 0 DNS requests from 0 clients. Ads blocked: 0.00%, Blocklist: 0 #pihole",
+			want: "Today, I have blocked 10 queries processing 0 DNS requests from 0 clients. Ads blocked: 0.00%, Blocklist: 0  #pihole",
 		},
 	}
 	for _, tt := range tests {
@@ -204,7 +208,7 @@ func TestModule_compose(t *testing.T) {
 				client:  tt.fields.client,
 				twitter: tt.fields.twitter,
 			}
-			if got := m.compose(tt.args.stats); got != tt.want {
+			if got := m.compose(tt.args.stats, tt.args.topStats); got != tt.want {
 				t.Errorf("Module.compose() = %v, want %v", got, tt.want)
 			}
 		})
@@ -223,4 +227,70 @@ func testingHTTPClient(handler http.Handler) (*http.Client, func()) {
 	}
 
 	return cli, s.Close
+}
+
+func TestModule_fetchTopStats(t *testing.T) {
+	d := TopStats{
+		TopQueries: map[string]int32{
+			"abc.xyz.com": 14,
+			"del.tel.com": 5,
+		},
+		TopAds: map[string]int32{
+			"albert.dilbert.com": 11,
+			"mozart.hilmx.com":   3,
+		},
+	}
+
+	dstr, _ := json.Marshal(d)
+
+	m := NewPiHoleBotModule("test")
+	h := http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		w.Write([]byte(dstr))
+	})
+
+	tc, teardown := testingHTTPClient(h)
+	defer teardown()
+
+	type fields struct {
+		Version string
+		Config  *Config
+		client  *http.Client
+		twitter *anaconda.TwitterApi
+	}
+	tests := []struct {
+		name    string
+		fields  fields
+		want    TopStats
+		wantErr bool
+	}{
+		{
+			name: "t1",
+			fields: fields{
+				Version: m.Version,
+				Config:  m.Config,
+				client:  tc,
+				twitter: m.twitter,
+			},
+			want:    d,
+			wantErr: false,
+		},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			m := &Module{
+				Version: tt.fields.Version,
+				Config:  tt.fields.Config,
+				client:  tt.fields.client,
+				twitter: tt.fields.twitter,
+			}
+			got, err := m.fetchTopStats()
+			if (err != nil) != tt.wantErr {
+				t.Errorf("Module.fetchTopStats() error = %v, wantErr %v", err, tt.wantErr)
+				return
+			}
+			if !reflect.DeepEqual(got, tt.want) {
+				t.Errorf("Module.fetchTopStats() = %v, want %v", got, tt.want)
+			}
+		})
+	}
 }
