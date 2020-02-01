@@ -233,11 +233,9 @@ func TestModule_fetchTopStats(t *testing.T) {
 	d := TopStats{
 		TopQueries: map[string]int32{
 			"abc.xyz.com": 14,
-			"del.tel.com": 5,
 		},
 		TopAds: map[string]int32{
 			"albert.dilbert.com": 11,
-			"mozart.hilmx.com":   3,
 		},
 	}
 

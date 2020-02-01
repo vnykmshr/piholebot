@@ -69,7 +69,7 @@ func (m *Module) fetchTopStats() (TopStats, error) {
 	}
 
 	q := u.Query()
-	q.Set("topItems", "3")
+	q.Set("topItems", "1")
 	q.Set("auth", m.Config.Server.Auth)
 	u.RawQuery = q.Encode()
 
